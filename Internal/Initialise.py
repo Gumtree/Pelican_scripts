@@ -5,6 +5,9 @@ from org.gumtree.gumnix.sics.io import SicsProxyListenerAdapter
 from org.eclipse.swt.events import DisposeListener
 from org.eclipse.swt.widgets import TypedListener
 #from org.gumtree.util.messaging import EventHandler
+import sys
+import os
+sys.path.append(str(os.path.dirname(get_project_path('Internal'))))
 from Internal import sicsext
 from Internal.sicsext import *
 from au.gov.ansto.bragg.nbi.ui.scripting import ConsoleEventHandler
