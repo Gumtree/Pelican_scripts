@@ -5,8 +5,7 @@ from org.gumtree.gumnix.sics.io import SicsProxyListenerAdapter
 from org.eclipse.swt.events import DisposeListener
 from org.eclipse.swt.widgets import TypedListener
 #from org.gumtree.util.messaging import EventHandler
-import sys
-import os
+import sys, os
 sys.path.append(str(os.path.dirname(get_project_path('Internal'))))
 from Internal import sicsext
 from Internal.sicsext import *
@@ -16,7 +15,7 @@ from java.lang import Runnable
 from java.lang import System
 from java.io import File
 from time import strftime, localtime
-import traceback, sys
+import traceback
 
 sics.ready = False
 __script__.title = 'Initialised'
@@ -27,6 +26,11 @@ __data_folder__ = 'Z:/testing/pelican'
 __export_folder__ = 'W:/data/current/reports'
 __buffer_log_file__ = __export_folder__
 System.setProperty('sics.data.path', __data_folder__)
+
+try:
+    __dispose_all__(None)
+except:
+    pass
 
 def get_prof_value(name):
     value = __UI__.getPreference(name)
@@ -40,7 +44,7 @@ def set_prof_value(name, value):
     if value == None:
         value = ''
     __UI__.setPreference(name, value)
-    
+
 fi = File(__buffer_log_file__)
 if not fi.exists():
     if not fi.mkdir():
@@ -55,11 +59,6 @@ while sics.getSicsController() == None:
     time.sleep(1)
 
 time.sleep(3)
-
-try:
-    __dispose_all__(None)
-except:
-    pass
 
 __scan_status_node__ = sics.getSicsController().findComponentController('/commands/scan/runscan/feedback/status')
 __scan_variable_node__ = sics.getSicsController().findComponentController('/commands/scan/runscan/scan_variable')
