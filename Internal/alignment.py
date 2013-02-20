@@ -80,12 +80,9 @@ def load_experiment_data():
     __cur_scan_filename__ = fullname
     ds = df[fullname]
     dname = str(data_name.value)
-    if dname == 'total_counts':
-        data = ds.sum(0)
-    else:
-        data = ds[dname]
+    data = SimpleData(ds[dname])
 #    data = ds[str(data_name.value)]
-    axis = ds[str(axis_name.value)]
+    axis = SimpleData(ds[str(axis_name.value)])
     if data.size > axis.size:
         data = data[:axis.size]
     ds2 = Dataset(data, axes=[axis])
@@ -121,7 +118,8 @@ def __std_run_script__(fns):
             ds = df[fn]
             dname = str(data_name.value)
             if dname == 'total_counts':
-                data = ds.sum(0)
+#                data = ds.sum(0)
+                data = ds[dname]
             else:
                 data = ds[dname]
             qm = ds[str(axis_name.value)]

@@ -49,9 +49,9 @@ def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, comm 
     try:
         timeOut = False
         counter = 0;
+        print 'Waiting for scan to start'
         while (scanController.getCommandStatus().equals(CommandStatus.IDLE)):
             time.sleep(0.1)
-            print 'IDLE'
             counter += 0.1
             if (counter >= 5):
                 timeOut = True
@@ -59,6 +59,7 @@ def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, comm 
                 break
                 
         # Enter into normal sequence
+        print 'Scan started'
         if (timeOut == False):
             scanpoint = -1;
             scanPointController = sicsController.findComponentController(scanController, '/feedback/scanpoint')
@@ -78,9 +79,9 @@ def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, comm 
                         except:
                             pass
                         try:
-                            if (float(scanpoint) / 3) == (int(scanpoint) /3) :
+#                            if (float(scanpoint) / 3) == (int(scanpoint) /3) :
                                 comm()
-                                print '\tupdate plot'
+#                                print '\tupdate plot'
                         except:
                             traceback.print_exc(file = sys.stdout)
                 time.sleep(0.1)
@@ -168,7 +169,7 @@ def rawscan(type, scan_variable, scan_start, scan_increment, NP, mode, preset, c
                         except:
                             pass
                         try:
-                            if (float(scanpoint) / 3) == (int(scanpoint) /3) :
+#                            if (float(scanpoint) / 3) == (int(scanpoint) /3) :
                                 exec(comm)
                                 print '\tupdate plot'
                         except:
