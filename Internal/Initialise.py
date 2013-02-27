@@ -7,7 +7,7 @@ from org.eclipse.swt.widgets import TypedListener
 #from org.gumtree.util.messaging import EventHandler
 import sys, os
 sys.path.append(str(os.path.dirname(get_project_path('Internal'))))
-from Internal import sicsext
+from Internal import sicsext, HISTORY_KEY_WORDS
 from Internal.sicsext import *
 from au.gov.ansto.bragg.nbi.ui.scripting import ConsoleEventHandler
 from org.eclipse.swt.widgets import Display
@@ -21,7 +21,7 @@ sics.ready = False
 __script__.title = 'Initialised'
 __script__.version = ''
 __script__.dict_path = get_absolute_path('/Internal/path_table')
-#__data_folder__ = 'Z:/pelican/data/current'
+#__data_folder__ = 'W:/data/current'
 __data_folder__ = 'Z:/testing/pelican'
 __export_folder__ = 'W:/data/current/reports'
 __buffer_log_file__ = __export_folder__
@@ -248,11 +248,17 @@ def next_step():
 
 def logBook(text):
     global __buffer_logger__
+    global __history_logger__
     try:
         tsmp = strftime("[%Y-%m-%d %H:%M:%S]", localtime())
         __buffer_logger__.write(tsmp + ' ' + text + '\n')
         __buffer_logger__.flush()
+        for item in HISTORY_KEY_WORDS:
+            if text.startswith(item):
+                __history_logger__.write(tsmp + ' ' + text + '\n')
+                __history_logger__.flush()
     except:
+        traceback.print_exc(file=sys.stdout)
         print 'failed to log'
     
 def slog(text):
