@@ -19,7 +19,7 @@ from gumpy.commons import sics
 __script__.title = 'Pelican Configuration'
 __script__.version = '1.0'
 
-print 'Please wait for SICS connection'
+print 'Waiting for SICS connection'
 while sics.getSicsController() == None:
     time.sleep(3)
 
@@ -46,23 +46,24 @@ Group.__model__ = __model__
 # Use below example to create parameters.
 # The type can be string, int, float, bool, file.
 g1 = Group('Experiment setup')
-Proposal_Number = Par('string', '')
+#Proposal_Number = Par('string', '')
 Experimental_Team = Par('string', '')
-Local_Contact = Par('string', '')
+#Local_Contact = Par('string', '')
 Experiment_Title = Par('string', '')
 Sample_Name = Par('string', '')
 act1 = Act('exp_setup()', 'Apply Change to Experiment Setup')
-g1.add(Proposal_Number, Experimental_Team, Local_Contact, 
-       Experiment_Title, Sample_Name, act1)
-pnumber = get_prof_value('pelican.proposal.number')
-if pnumber:
-    Proposal_Number.value = pnumber
-lcontact = get_prof_value('pelican.local.contract')
-if lcontact :
-    Local_Contact.value = lcontact
+g1.add(Experimental_Team, Experiment_Title, Sample_Name, act1)
+#g1.add(Proposal_Number, Experimental_Team, Local_Contact, 
+#       Experiment_Title, Sample_Name, act1)
+#pnumber = get_prof_value('pelican.proposal.number')
+#if pnumber:
+#    Proposal_Number.value = pnumber
+#lcontact = get_prof_value('pelican.local.contract')
+#if lcontact :
+#    Local_Contact.value = lcontact
 def exp_setup():
-    set_prof_value('pelican.proposal.number', Proposal_Number.value)
-    set_prof_value('pelican.local.contract', Local_Contact.value)
+#    set_prof_value('pelican.proposal.number', Proposal_Number.value)
+#    set_prof_value('pelican.local.contract', Local_Contact.value)
     sics.set('user', Experimental_Team.value)
     sics.set('title', Experiment_Title.value)
     sics.set('samplename', Sample_Name.value)
