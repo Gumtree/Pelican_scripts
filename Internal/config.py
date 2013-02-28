@@ -4,7 +4,7 @@ from org.gumtree.gumnix.sics.control import IStateMonitorListener
 from org.gumtree.gumnix.sics.io import SicsProxyListenerAdapter
 from org.eclipse.swt.events import DisposeListener
 from org.eclipse.swt.widgets import TypedListener
-from Internal import sicsext
+from Gumtree_Workspace.Internal import sicsext
 from au.gov.ansto.bragg.nbi.ui.scripting import ConsoleEventHandler
 from org.eclipse.swt.widgets import Display
 from java.lang import Runnable
@@ -156,6 +156,7 @@ while not __initialised__ and __trial_count__ < 100:
         __initialised__ = True
     except:
         __trial_count__ += 1
+        time.sleep(0.2)
 
 
 def ins_config():
