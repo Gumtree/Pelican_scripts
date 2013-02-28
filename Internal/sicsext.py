@@ -42,7 +42,6 @@ def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, comm 
     # Run scan
     print 'Scan started'
 #    scanController.asyncExecute()
-    print 'hset ' + cpath + ' start'
     execute('hset ' + cpath + ' start')
     
     # Monitor initial status change
