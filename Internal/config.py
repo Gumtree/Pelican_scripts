@@ -4,7 +4,7 @@ from org.gumtree.gumnix.sics.control import IStateMonitorListener
 from org.gumtree.gumnix.sics.io import SicsProxyListenerAdapter
 from org.eclipse.swt.events import DisposeListener
 from org.eclipse.swt.widgets import TypedListener
-from Gumtree_Workspace.Internal import sicsext
+from Internal import sicsext
 from au.gov.ansto.bragg.nbi.ui.scripting import ConsoleEventHandler
 from org.eclipse.swt.widgets import Display
 from java.lang import Runnable
