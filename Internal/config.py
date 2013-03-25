@@ -4,7 +4,7 @@ from org.gumtree.gumnix.sics.control import IStateMonitorListener
 from org.gumtree.gumnix.sics.io import SicsProxyListenerAdapter
 from org.eclipse.swt.events import DisposeListener
 from org.eclipse.swt.widgets import TypedListener
-import sys, os
+import sys, os, math
 sys.path.append(str(os.path.dirname(get_project_path('Internal'))))
 from Internal import sicsext
 from au.gov.ansto.bragg.nbi.ui.scripting import ConsoleEventHandler
@@ -78,8 +78,8 @@ Moncohromator_Vertical_Focussing = Par('bool', False)
 Moncohromator_Vertical_Focussing.enabled = False
 Monochromator_Time_Focussing = Par('bool', False)
 Monochromator_Time_Focussing.enabled = False
-Slit_1_Top = Par('float', 0)
-Slit_1_Bottom = Par('float', 0)
+Slit_1_Vertical = Par('float', 0)
+Slit_1_Horizontal = Par('float', 0)
 Fermi_Chopper_1_Frequency = Par('float', 0)
 Fermi_Chopper_1_Frame_Overlap_Ratio = Par('float', 0)
 Fermi_Chopper_1_Frame_Overlap_Ratio.enabled = False
@@ -88,20 +88,21 @@ Polariser = Par('string', '', options = ['none','polariser','collimator'])
 Fermi_Chopper_2_Frequency = Par('float', 0)
 Fermi_Chopper_2_Time_Focussing = Par('bool', False)
 Fermi_Chopper_2_Time_Focussing.enabled = False
-Slit_2_Top = Par('float', 0)
-Slit_2_Bottom = Par('float', 0)
+Slit_2_Vertical = Par('float', 0)
+Slit_2_Horizontal = Par('float', 0)
 Radial_Collimator = Par('bool', False)
 Radial_Collimator_Frequency = Par('float', 0)
+Radial_Collimator_Frequency.enabled = False
 Sample_Tank_Angle = Par('float', 0)
 Sample_Tank_Angle.enabled = False
 act2 = Act('ins_config()', 'Apply Change to Instrument Configuration')
 
 g2.add(Wavelength, Moncohromator_Vertical_Focussing, 
-       Monochromator_Time_Focussing, Slit_1_Top, Slit_1_Bottom, 
+       Monochromator_Time_Focussing, Slit_1_Vertical, Slit_1_Horizontal, 
        Fermi_Chopper_1_Frequency, Fermi_Chopper_1_Frame_Overlap_Ratio, 
        Second_Order_Filter, Polariser, Fermi_Chopper_2_Frequency, 
        Fermi_Chopper_2_Time_Focussing, 
-       Slit_2_Top, Slit_2_Bottom, Radial_Collimator, 
+       Slit_2_Vertical, Slit_2_Horizontal, Radial_Collimator, 
        Radial_Collimator_Frequency, Sample_Tank_Angle, act2)
 
 __initialised__ = False
@@ -114,14 +115,14 @@ while not __initialised__ and __trial_count__ < 100:
         wl = sics.getValue('vwi').getFloatData()
         Wavelength.value = str(wl)
         sv1 = sics.getValue('sv1').getFloatData()
-        Slit_1_Top.value = sv1
+        Slit_1_Vertical.value = sv1
         sh1 = sics.getValue('sh1').getFloatData()
-        Slit_1_Bottom.value = sh1
+        Slit_1_Horizontal.value = sh1
         mchs = sics.getValue('mchs').getFloatData()
         Fermi_Chopper_1_Frequency.value = mchs
         schs = sics.getValue('schs').getFloatData()
         Fermi_Chopper_2_Frequency.value = schs
-        vftz_value = int(sics.getValue('vftz').getFloatData())
+        vftz_value = round(sics.getValue('vftz').getFloatData())
         if vftz_value == 1:
             Second_Order_Filter.value = 'graphite'
         elif vftz_value == 2:
@@ -131,7 +132,7 @@ while not __initialised__ and __trial_count__ < 100:
         else:
             Second_Order_Filter.value = 'none'
         vftz = Second_Order_Filter.value
-        vptz_value = int(sics.getValue('vptz').getFloatData())
+        vptz_value = round(sics.getValue('vptz').getFloatData())
         if vptz_value == 3:
             Polariser.value = 'polariser'
         elif vptz_value == 2:
@@ -141,16 +142,16 @@ while not __initialised__ and __trial_count__ < 100:
         else:
             Polariser.value = 'none'
         vptz = Polariser.value
-        vrcz_value = int(sics.getValue('vrcz').getFloatData())
+        vrcz_value = round(sics.getValue('vrcz').getFloatData())
         if vrcz_value == 1:
             Radial_Collimator.value = True
         elif vrcz_value == 2:
             Radial_Collimator.value = False
         vrcz = Radial_Collimator.value
         sv2 = sics.getValue('sv2').getFloatData()
-        Slit_2_Top.value = sv2
+        Slit_2_Vertical.value = sv2
         sh2 = sics.getValue('sh2').getFloatData()
-        Slit_2_Bottom.value = sh2
+        Slit_2_Horizontal.value = sh2
         rco = sics.getValue('rco').getFloatData()
         Radial_Collimator_Frequency.value = rco
         sta = sics.getValue('stth').getFloatData()
@@ -165,10 +166,10 @@ def ins_config():
     global sv1, sh1, sv2, sh2, vftz, vptz, vrcz, rco, mchs, schs
     if confirm('Warning: this will run the SICS commands to drive the real devices of Pelican. To continue, press OK.'):
         devs = dict()
-        if sv1 != Slit_1_Top.value :
-            devs['sv1'] = Slit_1_Top.value
-        if sh1 != Slit_1_Bottom.value:
-            devs['sh1'] = Slit_1_Bottom.value
+        if sv1 != Slit_1_Vertical.value :
+            devs['sv1'] = Slit_1_Vertical.value
+        if sh1 != Slit_1_Horizontal.value:
+            devs['sh1'] = Slit_1_Horizontal.value
         if mchs != Fermi_Chopper_1_Frequency.value:
             devs['mchs'] = Fermi_Chopper_1_Frequency.value
         if schs != Fermi_Chopper_2_Frequency.value:
@@ -189,10 +190,10 @@ def ins_config():
                  devs['vptz'] = 2
             elif vptz_value == 'collimator':
                  devs['vptz'] = 1
-        if sv2 != Slit_2_Top.value:
-            devs['sv2'] = Slit_2_Top.value
-        if sh2 != Slit_2_Bottom.value:
-            devs['sh2'] = Slit_2_Bottom.value
+        if sv2 != Slit_2_Vertical.value:
+            devs['sv2'] = Slit_2_Vertical.value
+        if sh2 != Slit_2_Horizontal.value:
+            devs['sh2'] = Slit_2_Horizontal.value
         vrcz_value = Radial_Collimator.value
         if vrcz != vrcz_value :
             if vrcz_value :
@@ -204,12 +205,12 @@ def ins_config():
             devs['rco'] = Radial_Collimator_Frequency.value
         print devs
         print 'Configuration finished.'
-        sv1 = Slit_1_Top.value
-        sh1 = Slit_1_Bottom.value
+        sv1 = Slit_1_Vertical.value
+        sh1 = Slit_1_Horizontal.value
         vftz = vftz_value
         vptz = vptz_value
-        sv2 = Slit_2_Top.value
-        sh2 = Slit_2_Bottom.value
+        sv2 = Slit_2_Vertical.value
+        sh2 = Slit_2_Horizontal.value
         vrcz = vrcz_value
         rco = Radial_Collimator_Frequency.value
         mchs = Fermi_Chopper_1_Frequency.value
