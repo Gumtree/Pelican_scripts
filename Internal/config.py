@@ -359,7 +359,6 @@ def ins_config():
                 else :
                     Radial_Collimator.value = vrcz_new
                     vrcz = vrcz_new
-#        sics.multiDrive(devs)
         if rco_freq != Radial_Collimator_Frequency.value:
             rco_up_lim = float(sicsext.runCommand('rco softupperlim'))
             rco_low_lim = float(sicsext.runCommand('rco softlowerlim'))
@@ -382,6 +381,7 @@ def ins_config():
                     Radial_Collimator_Frequency.value = rco_freq_new
                     rco_freq = rco_freq_new
         slog('driving ' + str(devs))
+#        sics.multiDrive(devs)
         slog('Configuration finished.')
         sv1 = Slit_1_Vertical.value
         sh1 = Slit_1_Horizontal.value
