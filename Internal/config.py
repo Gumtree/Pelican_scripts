@@ -4,22 +4,23 @@ from org.gumtree.gumnix.sics.control import IStateMonitorListener
 from org.gumtree.gumnix.sics.io import SicsProxyListenerAdapter
 from org.eclipse.swt.events import DisposeListener
 from org.eclipse.swt.widgets import TypedListener
-import sys, os, math
+import sys, os, math, traceback
 sys.path.append(str(os.path.dirname(get_project_path('Internal'))))
-from Internal import sicsext
+from Internal import sicsext, HISTORY_KEY_WORDS
 from au.gov.ansto.bragg.nbi.ui.scripting import ConsoleEventHandler
 from org.eclipse.swt.widgets import Display
 from java.lang import Runnable
 from java.lang import System
 from java.io import File
 from time import strftime, localtime
-import traceback, sys
 from gumpy.commons import sics
 
 # Script control setup area
 # script info
 __script__.title = 'Pelican Configuration'
 __script__.version = '1.0'
+__buffer_logger__ = open('W:/data/current/reports/LogFile.txt', 'a')
+__history_logger__ = open('W:/data/current/reports/History.txt', 'a')
 
 print 'Waiting for SICS connection'
 while sics.getSicsController() == None:
@@ -115,12 +116,16 @@ while not __initialised__ and __trial_count__ < 100:
         wl = sics.getValue('vwi').getFloatData()
         Wavelength.value = str(wl)
         sv1 = sics.getValue('sv1').getFloatData()
+        sv1_precision = float(sicsext.runCommand('sv1 precision'))
         Slit_1_Vertical.value = sv1
         sh1 = sics.getValue('sh1').getFloatData()
+        sh1_precision = float(sicsext.runCommand('sh1 precision'))
         Slit_1_Horizontal.value = sh1
         mchs = sics.getValue('mchs').getFloatData()
+        mchs_precision = float(sicsext.runCommand('mchs precision'))
         Fermi_Chopper_1_Frequency.value = mchs
         schs = sics.getValue('schs').getFloatData()
+        schs_precision = float(sicsext.runCommand('schs precision'))
         Fermi_Chopper_2_Frequency.value = schs
         vftz_value = round(sics.getValue('vftz').getFloatData())
         if vftz_value == 1:
@@ -149,8 +154,10 @@ while not __initialised__ and __trial_count__ < 100:
             Radial_Collimator.value = False
         vrcz = Radial_Collimator.value
         sv2 = sics.getValue('sv2').getFloatData()
+        sv2_precision = float(sicsext.runCommand('sv2 precision'))
         Slit_2_Vertical.value = sv2
         sh2 = sics.getValue('sh2').getFloatData()
+        sh2_precision = float(sicsext.runCommand('sh2 precision'))
         Slit_2_Horizontal.value = sh2
         rco_speed = float(sicsext.runCommand('rco maxSpeed'))
         rco_up_lim = float(sicsext.runCommand('rco softupperlim'))
@@ -166,11 +173,12 @@ while not __initialised__ and __trial_count__ < 100:
 
 
 def ins_config():
-    global sv1, sh1, sv2, sh2, vftz, vptz, vrcz, rco, mchs, schs
+    global sv1, sh1, sv2, sh2, vftz, vptz, vrcz, rco, mchs, schs, rco_freq, sv1_precision, \
+            sh1_precision, sv2_precision, sh2_precision, mchs_precision, schs_precision
     if confirm('Warning: this will run the SICS commands to drive the real devices of Pelican. To continue, press OK.'):
         slog('Start configuration.')
         devs = dict()
-        if sv1 != Slit_1_Vertical.value :
+        if abs(sv1 - Slit_1_Vertical.value) > sv1_precision :
             devs['sv1'] = Slit_1_Vertical.value
             slog('drive sv1 ' + str(Slit_1_Vertical.value))
         else :
@@ -184,7 +192,7 @@ def ins_config():
                 else :
                     Slit_1_Vertical.value = sv1_new
                     sv1 = sv1_new
-        if sh1 != Slit_1_Horizontal.value:
+        if abs(sh1 - Slit_1_Horizontal.value) > sh1_precision:
             devs['sh1'] = Slit_1_Horizontal.value
             slog('drive sh1 ' + str(Slit_1_Horizontal.value))
         else :
@@ -198,7 +206,7 @@ def ins_config():
                 else :
                     Slit_1_Horizontal.value = sh1_new
                     sh1 = sh1_new
-        if mchs != Fermi_Chopper_1_Frequency.value:
+        if abs(mchs - Fermi_Chopper_1_Frequency.value) > mchs_precision:
             devs['mchs'] = Fermi_Chopper_1_Frequency.value
             slog('drive mchs ' + str(Fermi_Chopper_1_Frequency.value))
         else :
@@ -212,7 +220,7 @@ def ins_config():
                 else :
                     Fermi_Chopper_1_Frequency.value = mchs_new
                     mchs = mchs_new
-        if schs != Fermi_Chopper_2_Frequency.value:
+        if abs(schs - Fermi_Chopper_2_Frequency.value) > schs_precision:
             devs['schs'] = Fermi_Chopper_2_Frequency.value
             slog('drive schs ' + str(Fermi_Chopper_2_Frequency.value))
         else :
@@ -300,7 +308,7 @@ def ins_config():
                 else :
                     Polariser.value = vptz_new
                     vptz = vptz_new
-        if sv2 != Slit_2_Vertical.value:
+        if abs(sv2 - Slit_2_Vertical.value) > sv2_precision:
             devs['sv2'] = Slit_2_Vertical.value
             slog('drive sv2 ' + str(Slit_2_Vertical.value))
         else :
@@ -314,7 +322,7 @@ def ins_config():
                 else :
                     Slit_2_Vertical.value = sv2_new
                     sv2 = sv2_new
-        if sh2 != Slit_2_Horizontal.value:
+        if abs(sh2 - Slit_2_Horizontal.value) > sh2_precision:
             devs['sh2'] = Slit_2_Horizontal.value
             slog('drive sh2 ' + str(Slit_2_Horizontal.value))
         else :
@@ -359,40 +367,123 @@ def ins_config():
                 else :
                     Radial_Collimator.value = vrcz_new
                     vrcz = vrcz_new
-        if rco_freq != Radial_Collimator_Frequency.value:
+        rco_freq_changed = False
+        if abs(rco_freq - Radial_Collimator_Frequency.value) > 1e-5:
             rco_up_lim = float(sicsext.runCommand('rco softupperlim'))
             rco_low_lim = float(sicsext.runCommand('rco softlowerlim'))
             rco_speed = Radial_Collimator_Frequency.value * 2 * (rco_up_lim - rco_low_lim)
             sics.execute('rco maxSpeed ' + str(Radial_Collimator_Frequency.value))
             slog('rco maxSpeed ' + str(Radial_Collimator_Frequency.value))
+            rco_freq_changed = True
         else :
             rco_speed = float(sicsext.runCommand('rco maxSpeed'))
             rco_up_lim = float(sicsext.runCommand('rco softupperlim'))
             rco_low_lim = float(sicsext.runCommand('rco softlowerlim'))
             rco_freq_new = rco_speed / (rco_up_lim - rco_low_lim) / 2
             rco_old_speed = rco_freq * 2 * (rco_up_lim - rco_low_lim)
-            if rco_freq != rco_freq_new :
+            if abs(rco_freq - rco_freq_new) > 1e-5 :
                 rp = confirm('Radial_Collimator_Frequency has been changed to ' + str(rco_freq_new) + ' since last update. ' \
                     + 'Do you want to change it back to ' + str(rco_freq) + '?')
                 if rp :
                     sics.execute('rco maxSpeed ' + str(rco_old_speed))
                     slog('rco maxSpeed ' + str(rco_old_speed))
+                    rco_freq_changed = True
                 else :
                     Radial_Collimator_Frequency.value = rco_freq_new
                     rco_freq = rco_freq_new
-        slog('driving ' + str(devs))
-#        sics.multiDrive(devs)
+        if len(devs) > 0 :
+            slog('driving ' + str(devs))
+#            sics.multiDrive(devs)
+        else :
+            if not rco_freq_changed: 
+                slog('no change in the configuration')
         slog('Configuration finished.')
-        sv1 = Slit_1_Vertical.value
-        sh1 = Slit_1_Horizontal.value
-        vftz = Second_Order_Filter.value
-        vptz = Polariser.value
-        sv2 = Slit_2_Vertical.value
-        sh2 = Slit_2_Horizontal.value
-        vrcz = Radial_Collimator.value
-        rco_freq = Radial_Collimator_Frequency.value
-        mchs = Fermi_Chopper_1_Frequency.value
-        schs = Fermi_Chopper_2_Frequency.value
+        wl = sics.getValue('vwi').getFloatData()
+        Wavelength.value = str(wl)
+        sv1_new = sics.getValue('sv1').getFloatData()
+        if abs(Slit_1_Vertical.value - sv1_new) > sv1_precision:
+            slog('drive sv1 failed, current position is ' + str(sv1_new))
+        else:
+            sv1 = sv1_new
+            Slit_1_Vertical.value = sv1
+        sh1_new = sics.getValue('sh1').getFloatData()
+        if abs(Slit_1_Horizontal.value - sh1_new) > sh1_precision:
+            slog('drive sh1 failed, current position is ' + str(sh1_new))
+        else:
+            sh1 = sh1_new
+            Slit_1_Horizontal.value = sh1
+        mchs_new = sics.getValue('mchs').getFloatData()
+        if abs(Fermi_Chopper_1_Frequency.value - mchs_new) > mchs_precision:
+            slog('drive mchs failed, current position is ' + str(mchs_new))
+        else:
+            mchs = mchs_new
+            Fermi_Chopper_1_Frequency.value = mchs
+        schs_new = sics.getValue('schs').getFloatData()
+        if abs(Fermi_Chopper_2_Frequency.value - schs_new) > schs_precision:
+            slog('drive schs failed, current position is ' + str(schs_new))
+        else:
+            schs = schs_new
+            Fermi_Chopper_2_Frequency.value = schs
+        vftz_value = round(sics.getValue('vftz').getFloatData())
+        if vftz_value == 1:
+            vftz_new = 'graphite'
+        elif vftz_value == 2:
+            vftz_new = 'none'
+        elif vftz_value == 3:
+            vftz_new = 'Be'
+        else:
+            vftz_new = 'none'
+        if Second_Order_Filter.value != vftz_new :
+            slog('change Second_Order_Filter failed, current value is ' + vftz_new)
+        else :
+            vftz = vftz_new
+        vptz_value = round(sics.getValue('vptz').getFloatData())
+        if vptz_value == 3:
+            vptz_new = 'polariser'
+        elif vptz_value == 2:
+            vptz_new = 'none'
+        elif vptz_value == 1:
+            vptz_new = 'collimator'
+        else:
+            vptz_new = 'none'
+        if Polariser.value != vptz_new:
+            slog('change Polariser failed, current value is ' + vptz_new)
+        else :
+            vptz = vptz_new
+        vrcz_value = round(sics.getValue('vrcz').getFloatData())
+        if vrcz_value == 1:
+            vrcz_new = True
+            vrcz_status = 'on'
+        else:
+            vrcz_new = False
+            vrcz_status = 'off'
+        if Radial_Collimator.value != vrcz_new:
+            slog('change Radial_Collimator failed, current value is ' + vrcz_status)
+        else:
+            vrcz = vrcz_new
+        sv2_new = sics.getValue('sv2').getFloatData()
+        if abs(Slit_2_Vertical.value - sv2_new) > sv2_precision:
+            slog('drive sv2 failed, current position is ' + str(sv2_new))
+        else:
+            sv2 = sv2_new
+            Slit_2_Vertical.value = sv2
+        sh2_new = sics.getValue('sh2').getFloatData()
+        if abs(Slit_2_Horizontal.value - sh2_new) > sh2_precision:
+            slog('drive sh2 failed, current position is ' + str(sh2_new))
+        else:
+            sh2 = sh2_new
+            Slit_2_Horizontal.value = sh2
+        rco_speed = float(sicsext.runCommand('rco maxSpeed'))
+        rco_up_lim = float(sicsext.runCommand('rco softupperlim'))
+        rco_low_lim = float(sicsext.runCommand('rco softlowerlim'))
+        rco_freq_new = rco_speed / (rco_up_lim - rco_low_lim) / 2
+        if abs(Radial_Collimator_Frequency.value - rco_freq_new) > 1e-5:
+            slog('set Radial_Collimator_Frequency failed, current value is ' + str(rco_freq_new))
+        else:
+            rco_freq = rco_freq_new
+            Radial_Collimator_Frequency.value = rco_freq
+        sta = sics.getValue('stth').getFloatData()
+        Sample_Tank_Angle.value = sta
     else:
         print 'Configuration aborted.'
 
@@ -400,6 +491,24 @@ def set_prof_value(name, value):
     if value == None:
         value = ''
     __UI__.setPreference(name, value)
+    
+def logBook(text):
+    global __buffer_logger__, __history_logger__
+    try:
+        tsmp = strftime("[%Y-%m-%d %H:%M:%S]", localtime())
+        __buffer_logger__.write(tsmp + ' ' + text + '\n')
+        __buffer_logger__.flush()
+        for item in HISTORY_KEY_WORDS:
+            if text.startswith(item):
+                __history_logger__.write(tsmp + ' ' + text + '\n')
+                __history_logger__.flush()
+    except:
+        traceback.print_exc(file=sys.stdout)
+        print 'failed to log'
+    
+def slog(text):
+    logln(text + '\n')
+    logBook(text)
     
 # Use below example to create a new Plot
 # Plot4 = Plot(title = 'new plot')
@@ -409,4 +518,9 @@ def __run_script__(fns):
     pass
     
 def __dispose__():
+    global __buffer_logger__, __history_logger__
+    if __buffer_logger__:
+        __buffer_logger__.close()
+    if __history_logger__:
+        __history_logger__.close()
     pass
