@@ -29,6 +29,7 @@ run_mode = $entry/run_mode
 sample_name = $entry/sample/name
 sample_short_title = $entry/sample/short_title
 sample_description = $entry/sample/description
+run_number = $entry/data/run_number
 
 sh1 = $entry/instrument/aperture/sh1
 sh2 = $entry/instrument/aperture/sh2

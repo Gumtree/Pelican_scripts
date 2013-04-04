@@ -393,7 +393,7 @@ def ins_config():
                     rco_freq = rco_freq_new
         if len(devs) > 0 :
             slog('driving ' + str(devs))
-#            sics.multiDrive(devs)
+            sics.multiDrive(devs)
         else :
             if not rco_freq_changed: 
                 slog('no change in the configuration')

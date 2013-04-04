@@ -17,7 +17,7 @@ scan_start = Par('float', 0)
 scan_stop = Par('float', 0)
 number_of_points = Par('int', 0)
 scan_mode = Par('string', 'time')
-scan_mode.enabled = False
+scan_mode.enabled = True
 scan_preset = Par('int', 0)
 act1 = Act('scan_device()', 'Scan on Device')
 def scan_device():
@@ -45,7 +45,7 @@ G2 = Group('Fitting')
 data_name = Par('string', 'total_counts', \
                options = ['total_counts', 'bm1_counts', 'bm2_counts'])
 axis_name = Par('string', '')
-axis_name.enabled = False
+axis_name.enabled = True
 peak_pos = Par('float', 'NaN')
 fact = Act('fit_curve()', 'Fit Again')
 #offset_done = Par('bool', False)
