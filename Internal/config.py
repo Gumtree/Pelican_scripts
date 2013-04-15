@@ -21,7 +21,7 @@ __script__.title = 'Pelican Configuration'
 __script__.version = '1.0'
 __buffer_logger__ = open('W:/data/current/reports/LogFile.txt', 'a')
 __history_logger__ = open('W:/data/current/reports/History.txt', 'a')
-
+__time_out__ = 5
 print 'Waiting for SICS connection'
 while sics.getSicsController() == None:
     time.sleep(3)
@@ -106,71 +106,123 @@ g2.add(Wavelength, Moncohromator_Vertical_Focussing,
        Slit_2_Vertical, Slit_2_Horizontal, Radial_Collimator, 
        Radial_Collimator_Frequency, Sample_Tank_Angle, act2)
 
-__initialised__ = False
-__trial_count__ = 0
-while not __initialised__ and __trial_count__ < 100:
-    try:
-        Experimental_Team.value = sics.getValue('user').getStringData()
-        Experiment_Title.value = sics.getValue('title').getStringData()
-        Sample_Name.value = sics.getValue('samplename').getStringData()
-        wl = sics.getValue('vwi').getFloatData()
+def get_sics_value(name, dtype = str):
+    global __time_out__
+    __count__ = 0
+    name_str = str(name)
+    print 'loading ' + name_str
+    while __count__ < __time_out__:
+        try:
+            item = sics.getValue(name_str)
+            if dtype is str:
+                return item.getStringData()
+            elif dtype is float:
+                return item.getFloatData()
+            elif dtype is int:
+                return item.getIntData()
+            else:
+                return item
+        except:
+            __count__ += 0.2
+            time.sleep(0.2)
+    print 'time out in loading ' + name_str
+    
+def run_sics_command(comm, dtype = str):
+    global __time_out__
+    __count__ = 0
+    comm_str = str(comm)
+    print 'running ' + comm_str
+    while __count__ < __time_out__:
+        try:
+            item = sicsext.runCommand(comm_str)
+            if dtype is str:
+                return item
+            elif dtype is float:
+                return float(item)
+            elif dtype is int:
+                return int(item)
+            else:
+                return item
+        except:
+            __count__ += 0.2
+            time.sleep(0.2)
+    print 'time out in running ' + comm_str
+    return None
+    
+try:
+    Experimental_Team.value = get_sics_value('user')
+    Experiment_Title.value = get_sics_value('title')
+    Sample_Name.value = get_sics_value('samplename')
+    wl = get_sics_value('vwi', float)
+    if not wl is None:
         Wavelength.value = str(wl)
-        sv1 = sics.getValue('sv1').getFloatData()
-        sv1_precision = float(sicsext.runCommand('sv1 precision'))
+    sv1 = get_sics_value('sv1', float)
+    if not sv1 is None:
+        sv1_precision = run_sics_command('sv1 precision', float)
         Slit_1_Vertical.value = sv1
-        sh1 = sics.getValue('sh1').getFloatData()
-        sh1_precision = float(sicsext.runCommand('sh1 precision'))
+    sh1 = get_sics_value('sh1', float)
+    if not sh1 is None:
+        sh1_precision = run_sics_command('sh1 precision', float)
         Slit_1_Horizontal.value = sh1
-        mchs = sics.getValue('mchs').getFloatData()
-        mchs_precision = float(sicsext.runCommand('mchs precision'))
+    mchs = get_sics_value('mchs', float)
+    if not mchs is None:
+        mchs_precision = run_sics_command('mchs precision', float)
         Fermi_Chopper_1_Frequency.value = mchs
-        schs = sics.getValue('schs').getFloatData()
-        schs_precision = float(sicsext.runCommand('schs precision'))
+    schs = get_sics_value('schs', float)
+    if not schs is None:
+        schs_precision = run_sics_command('schs precision', float)
         Fermi_Chopper_2_Frequency.value = schs
-        vftz_value = round(sics.getValue('vftz').getFloatData())
-        if vftz_value == 1:
-            Second_Order_Filter.value = 'graphite'
-        elif vftz_value == 2:
-            Second_Order_Filter.value = 'none'
-        elif vftz_value == 3:
-            Second_Order_Filter.value = 'Be'
-        else:
-            Second_Order_Filter.value = 'none'
-        vftz = Second_Order_Filter.value
-        vptz_value = round(sics.getValue('vptz').getFloatData())
-        if vptz_value == 3:
-            Polariser.value = 'polariser'
-        elif vptz_value == 2:
-            Polariser.value = 'none'
-        elif vptz_value == 1:
-            Polariser.value = 'collimator'
-        else:
-            Polariser.value = 'none'
-        vptz = Polariser.value
-        vrcz_value = round(sics.getValue('vrcz').getFloatData())
-        if vrcz_value == 1:
-            Radial_Collimator.value = True
-        elif vrcz_value == 2:
-            Radial_Collimator.value = False
-        vrcz = Radial_Collimator.value
-        sv2 = sics.getValue('sv2').getFloatData()
-        sv2_precision = float(sicsext.runCommand('sv2 precision'))
+    vftz_value = get_sics_value('vftz', float)
+    if not vftz_value is None:
+        vftz_value = round(vftz_value)
+    if vftz_value == 1:
+        Second_Order_Filter.value = 'graphite'
+    elif vftz_value == 2:
+        Second_Order_Filter.value = 'none'
+    elif vftz_value == 3:
+        Second_Order_Filter.value = 'Be'
+    else:
+        Second_Order_Filter.value = 'none'
+    vftz = Second_Order_Filter.value
+    vptz_value = get_sics_value('vptz', float)
+    if not vptz_value is None:
+        vptz_value = round(vptz_value)
+    if vptz_value == 3:
+        Polariser.value = 'polariser'
+    elif vptz_value == 2:
+        Polariser.value = 'none'
+    elif vptz_value == 1:
+        Polariser.value = 'collimator'
+    else:
+        Polariser.value = 'none'
+    vptz = Polariser.value
+    vrcz_value = get_sics_value('vrcz', float)
+    if vrcz_value is None:
+        vrcz_value = round(vrcz_value)
+    if vrcz_value == 1:
+        Radial_Collimator.value = True
+    elif vrcz_value == 2:
+        Radial_Collimator.value = False
+    vrcz = Radial_Collimator.value
+    sv2 = get_sics_value('sv2', float)
+    if not sv2 is None:
+        sv2_precision = run_sics_command('sv2 precision', float)
         Slit_2_Vertical.value = sv2
-        sh2 = sics.getValue('sh2').getFloatData()
-        sh2_precision = float(sicsext.runCommand('sh2 precision'))
+    sh2 = get_sics_value('sh2', float)
+    if not sh2 is None:
+        sh2_precision = run_sics_command('sh2 precision', float)
         Slit_2_Horizontal.value = sh2
-        rco_speed = float(sicsext.runCommand('rco maxSpeed'))
-        rco_up_lim = float(sicsext.runCommand('rco softupperlim'))
-        rco_low_lim = float(sicsext.runCommand('rco softlowerlim'))
-        rco_freq = rco_speed / (rco_up_lim - rco_low_lim) / 2
+    rco_speed = run_sics_command('rco maxSpeed', float)
+    rco_up_lim = run_sics_command('rco softupperlim', float)
+    rco_low_lim = run_sics_command('rco softlowerlim', float)
+    rco_freq = rco_speed / (rco_up_lim - rco_low_lim) / 2
+    if not rco_freq is None:
         Radial_Collimator_Frequency.value = rco_freq
-        sta = sics.getValue('stth').getFloatData()
+    sta = get_sics_value('stth', float)
+    if not sta is None:
         Sample_Tank_Angle.value = sta
-        __initialised__ = True
-    except:
-        __trial_count__ += 1
-        time.sleep(0.2)
-
+except:
+    print 'loading configuration page failed'
 
 def ins_config():
     global sv1, sh1, sv2, sh2, vftz, vptz, vrcz, rco, mchs, schs, rco_freq, sv1_precision, \
