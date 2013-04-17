@@ -45,7 +45,7 @@ G1.add(device_name, scan_start, scan_stop, number_of_points, scan_mode, scan_pre
 G2 = Group('Fitting')
 data_name = Par('string', 'total_counts', \
                options = ['total_counts', 'bm1_counts', 'bm2_counts'])
-normalise = Par('bool', False)
+normalise = Par('bool', True)
 axis_name = Par('string', '')
 axis_name.enabled = True
 peak_pos = Par('float', 'NaN')
