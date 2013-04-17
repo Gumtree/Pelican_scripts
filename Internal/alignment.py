@@ -45,13 +45,14 @@ G1.add(device_name, scan_start, scan_stop, number_of_points, scan_mode, scan_pre
 G2 = Group('Fitting')
 data_name = Par('string', 'total_counts', \
                options = ['total_counts', 'bm1_counts', 'bm2_counts'])
+normalise = Par('bool', False)
 axis_name = Par('string', '')
 axis_name.enabled = True
 peak_pos = Par('float', 'NaN')
 fact = Act('fit_curve()', 'Fit Again')
 #offset_done = Par('bool', False)
 #act3 = Act('offset_s2()', 'Set Device Zero Offset')
-G2.add(data_name, axis_name, peak_pos, fact)
+G2.add(data_name, normalise, axis_name, peak_pos, fact)
 
 def scan(dname, start, stop, np, mode, preset):
     device_name.value = dname
@@ -82,6 +83,21 @@ def load_experiment_data():
     axis = SimpleData(ds[str(axis_name.value)])
     if data.size > axis.size:
         data = data[:axis.size]
+    if normalise.value :
+        if dname == 'bm1_counts':
+            tname = 'bm1_time'
+        elif dname == 'bm2_counts':
+            tname = 'bm2_time'
+        else:
+            tname = 'detector_time'
+        norm = ds[tname]
+        if norm != None and hasattr(norm, '__len__'):
+            avg = norm.sum() / len(norm)
+            niter = norm.item_iter()
+            if niter.next() <= 0:
+                niter.set_curr(1)
+            data = data / norm * avg
+
     ds2 = Dataset(data, axes=[axis])
     ds2.title = ds.id
     ds2.location = fullname
@@ -106,9 +122,9 @@ def __std_run_script__(fns):
         for fn in fns:
             # load dataset with each file name
             ds = Plot1.ds
-            if ds != None and len(ds) > 0:
-                if ds[0].location == fn:
-                    return
+#            if ds != None and len(ds) > 0:
+#                if ds[0].location == fn:
+#                    return
             df.datasets.clear()
             ds = df[fn]
             axis_name.value = ds.axes[0].name
@@ -118,6 +134,21 @@ def __std_run_script__(fns):
                 data = ds[dname]
             else:
                 data = ds[dname]
+            if normalise.value :
+                if dname == 'bm1_counts':
+                    tname = 'bm1_time'
+                elif dname == 'bm2_counts':
+                    tname = 'bm2_time'
+                else:
+                    tname = 'detector_time'
+                norm = ds[tname]
+                if norm != None and hasattr(norm, '__len__'):
+                    avg = norm.sum() / len(norm)
+                    niter = norm.item_iter()
+                    if niter.next() <= 0:
+                        niter.set_curr(1)
+                    data = data / norm * avg
+        
             axis = ds[str(axis_name.value)]
             ds2 = Dataset(data, axes=[axis])
             ds2.title = ds.id
