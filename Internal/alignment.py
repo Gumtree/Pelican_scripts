@@ -34,6 +34,8 @@ def scan_device():
                     scan_mode.value, scan_preset.value, load_experiment_data, True, \
                     'HISTOGRAM_XY')
     time.sleep(2)
+    peak_pos.value = float('NaN')
+    FWHM.value = float('NaN')
     fit_curve()
 devices = sicsext.getDrivables()
 device_name.options = devices
@@ -43,16 +45,19 @@ def update_axis_name():
 G1.add(device_name, scan_start, scan_stop, number_of_points, scan_mode, scan_preset, act1)
 
 G2 = Group('Fitting')
-data_name = Par('string', 'total_counts', \
+data_name = Par('string', 'bm2_counts', \
                options = ['total_counts', 'bm1_counts', 'bm2_counts'])
 normalise = Par('bool', True)
 axis_name = Par('string', '')
 axis_name.enabled = True
+fit_min = Par('float', 'NaN')
+fit_max = Par('float', 'NaN')
 peak_pos = Par('float', 'NaN')
+FWHM = Par('float', 'NaN')
 fact = Act('fit_curve()', 'Fit Again')
 #offset_done = Par('bool', False)
 #act3 = Act('offset_s2()', 'Set Device Zero Offset')
-G2.add(data_name, normalise, axis_name, peak_pos, fact)
+G2.add(data_name, normalise, axis_name, fit_min, fit_max, peak_pos, FWHM, fact)
 
 def scan(dname, start, stop, np, mode, preset):
     device_name.value = dname
@@ -64,8 +69,45 @@ def scan(dname, start, stop, np, mode, preset):
     axis_name.value = dname
     scan_device()
     
+#def fit_curve():
+#    __std_fit_curve__()
+
 def fit_curve():
-    __std_fit_curve__()
+    global Plot1
+    ds = Plot1.ds
+    if len(ds) == 0:
+        log('Error: no curve to fit in Plot1.\n')
+        return
+    for d in ds:
+        if d.title == 'fitting':
+            Plot1.remove_dataset(d)
+    d0 = ds[0]
+    fitting = Fitting(GAUSSIAN_FITTING)
+    try:
+        fitting.set_histogram(d0, fit_min.value, fit_max.value)
+        val = peak_pos.value
+        if val == val:
+            fitting.set_param('mean', val)
+        val = FWHM.value
+        if val == val:
+            fitting.set_param('sigma', math.fabs(val / 2.35482))
+        res = fitting.fit()
+        res.var[:] = 0
+        res.title = 'fitting'
+        Plot1.add_dataset(res)
+        mean = fitting.params['mean']
+        mean_err = fitting.errors['mean']
+        FWHM.value = 2.35482 * math.fabs(fitting.params['sigma'])
+        FWHM_err = 5.54518 * math.fabs(fitting.errors['sigma'])
+        log('POS_OF_PEAK=' + str(mean) + ' +/- ' + str(mean_err))
+        log('FWHM=' + str(FWHM.value) + ' +/- ' + str(FWHM_err))
+        log('Chi2 = ' + str(fitting.fitter.getQuality()))
+        peak_pos.value = fitting.mean
+#        print fitting.params
+    except:
+#        traceback.print_exc(file = sys.stdout)
+        log('can not fit\n')
+
 
 # This function is called when pushing the Run button in the control UI.
 def __run_script__(fns):
@@ -101,6 +143,8 @@ def load_experiment_data():
     ds2 = Dataset(data, axes=[axis])
     ds2.title = ds.id
     ds2.location = fullname
+    fit_min.value = axis.min()
+    fit_max.value = axis.max()
     Plot1.set_dataset(ds2)
     Plot1.x_label = axis_name.value
     Plot1.y_label = str(data_name.value)
@@ -153,12 +197,15 @@ def __std_run_script__(fns):
             ds2 = Dataset(data, axes=[axis])
             ds2.title = ds.id
             ds2.location = fn
+            fit_min.value = axis.min()
+            fit_max.value = axis.max()
             Plot1.set_dataset(ds2)
             Plot1.x_label = axis_name.value
             Plot1.y_label = dname
             Plot1.title = dname + ' vs ' + axis_name.value
             Plot1.pv.getPlot().setMarkerEnabled(True)
             peak_pos.value = float('NaN')
+            FWHM.value = float('NaN')
             fit_curve()
             
 def auto_run():
