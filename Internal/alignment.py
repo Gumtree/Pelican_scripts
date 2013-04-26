@@ -193,7 +193,9 @@ def __std_run_script__(fns):
                         niter.set_curr(1)
                     data = data / norm * avg
         
-            axis = ds[str(axis_name.value)]
+            axis = ds.get_metadata(str(axis_name.value))
+            if not hasattr(axis, '__len__'):
+                axis = SimpleData([axis], title = (axis_name.value))
             ds2 = Dataset(data, axes=[axis])
             ds2.title = ds.id
             ds2.location = fn
