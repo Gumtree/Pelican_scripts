@@ -204,9 +204,9 @@ try:
     if vrcz_value is None:
         vrcz_value = round(vrcz_value)
     if vrcz_value == 1:
-        Radial_Collimator.value = True
-    elif vrcz_value == 2:
         Radial_Collimator.value = False
+    elif vrcz_value == 2:
+        Radial_Collimator.value = True
     vrcz = Radial_Collimator.value
     sv2 = get_sics_value('sv2', float)
     sv2_precision = None
@@ -403,16 +403,16 @@ def ins_config():
         vrcz_value = Radial_Collimator.value
         if vrcz != vrcz_value :
             if vrcz_value :
-                 devs['vrcz'] = 1
-                 slog('drive vrcz 1')
-            else :
                  devs['vrcz'] = 2
                  slog('drive vrcz 2')
+            else :
+                 devs['vrcz'] = 1
+                 slog('drive vrcz 1')
         else :
             vrcz_float_new = get_sics_value('vrcz', float)
             if not vrcz_float_new is None:
                 vrcz_float_new = round(vrcz_float_new)
-                if vrcz_float_new == 1:
+                if vrcz_float_new == 2:
                     vrcz_new = True
                 else:
                     vrcz_new = False
@@ -425,11 +425,11 @@ def ins_config():
                             + 'Do you want to enable it?')
                     if rp :
                         if vrcz :
-                            devs['vrcz'] = 1
-                            slog('drive vrcz 1')
-                        else :
                             devs['vrcz'] = 2
                             slog('drive vrcz 2')
+                        else :
+                            devs['vrcz'] = 1
+                            slog('drive vrcz 1')
                     else :
                         Radial_Collimator.value = vrcz_new
                         vrcz = vrcz_new
@@ -529,7 +529,7 @@ def ins_config():
         vrcz_value = get_sics_value('vrcz', float)
         if not vrcz_value is None:
             vrcz_value = round(vrcz_value)
-            if vrcz_value == 1:
+            if vrcz_value == 2:
                 vrcz_new = True
                 vrcz_status = 'on'
             else:
