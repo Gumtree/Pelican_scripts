@@ -37,7 +37,9 @@ def scan_device():
     time.sleep(2)
     peak_pos.value = float('NaN')
     FWHM.value = float('NaN')
-    fit_curve()
+    if auto_fit.value :
+        fit_curve()
+    
 devices = sicsext.getDrivables()
 device_name.options = devices
 def update_axis_name():
@@ -51,6 +53,7 @@ data_name = Par('string', 'bm2_counts', \
 normalise = Par('bool', True)
 axis_name = Par('string', '')
 axis_name.enabled = True
+auto_fit = Par('bool', False)
 fit_min = Par('float', 'NaN')
 fit_max = Par('float', 'NaN')
 peak_pos = Par('float', 'NaN')
@@ -58,7 +61,7 @@ FWHM = Par('float', 'NaN')
 fact = Act('fit_curve()', 'Fit Again')
 #offset_done = Par('bool', False)
 #act3 = Act('offset_s2()', 'Set Device Zero Offset')
-G2.add(data_name, normalise, axis_name, fit_min, fit_max, peak_pos, FWHM, fact)
+G2.add(data_name, normalise, axis_name, auto_fit, fit_min, fit_max, peak_pos, FWHM, fact)
 
 G3 = Group('Plot 2')
 allow_duplication = Par('bool', False)
@@ -374,7 +377,8 @@ def __std_run_script__(fns):
             Plot1.pv.getPlot().setMarkerEnabled(True)
             peak_pos.value = float('NaN')
             FWHM.value = float('NaN')
-            fit_curve()
+            if auto_fit.value :
+                fit_curve()
             
 def auto_run():
     pass
