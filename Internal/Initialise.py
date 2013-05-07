@@ -32,19 +32,6 @@ try:
 except:
     pass
 
-def get_prof_value(name):
-    value = __UI__.getPreference(name)
-    if value == None:
-        value = ''
-    else:
-        value = str(value)
-    return value
-
-def set_prof_value(name, value):
-    if value == None:
-        value = ''
-    __UI__.setPreference(name, value)
-
 fi = File(__buffer_log_file__)
 if not fi.exists():
     if not fi.mkdirs():
