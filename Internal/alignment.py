@@ -48,7 +48,7 @@ def update_axis_name():
 G1.add(device_name, scan_start, scan_stop, number_of_points, scan_mode, scan_preset, act1)
 
 G2 = Group('Fitting')
-data_name = Par('string', 'bm2_counts', \
+data_name = Par('string', 'total_counts', \
                options = ['total_counts', 'bm1_counts', 'bm2_counts'])
 normalise = Par('bool', True)
 axis_name = Par('string', '')
