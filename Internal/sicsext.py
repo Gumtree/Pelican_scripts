@@ -53,7 +53,7 @@ def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, comm 
         while (scanController.getCommandStatus().equals(CommandStatus.IDLE)):
             time.sleep(0.1)
             counter += 0.1
-            if (counter >= 5):
+            if (counter >= 50):
                 timeOut = True
                 print 'Time out on running scan'
                 break
