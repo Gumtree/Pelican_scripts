@@ -39,6 +39,24 @@ def set_prof_value(name, value):
         value = ''
     __UI__.setPreference(name, value)
     
+def logBook(text):
+    global __buffer_logger__, __history_logger__
+    try:
+        tsmp = strftime("[%Y-%m-%d %H:%M:%S]", localtime())
+        __buffer_logger__.write(tsmp + ' ' + text + '\n')
+        __buffer_logger__.flush()
+        for item in HISTORY_KEY_WORDS:
+            if text.startswith(item):
+                __history_logger__.write(tsmp + ' ' + text + '\n')
+                __history_logger__.flush()
+    except:
+        traceback.print_exc(file=sys.stdout)
+        slog('failed to log')
+    
+def slog(text):
+    logln(text + '\n')
+    logBook(text)
+    
 if hasattr(sics, 'ready'):
     if not sics.ready:
         time.sleep(0.5)
@@ -110,7 +128,7 @@ def get_sics_value(name, dtype = str):
     global __time_out__
     __count__ = 0
     name_str = str(name)
-    print 'loading ' + name_str
+    slog('loading ' + name_str)
     while __count__ < __time_out__:
         try:
             item = sics.getValue(name_str)
@@ -125,13 +143,13 @@ def get_sics_value(name, dtype = str):
         except:
             __count__ += 0.2
             time.sleep(0.2)
-    print 'time out in loading ' + name_str
+    slog('time out in loading ' + name_str)
     
 def run_sics_command(comm, dtype = str):
     global __time_out__
     __count__ = 0
     comm_str = str(comm)
-    print 'running ' + comm_str
+    slog('running ' + comm_str)
     while __count__ < __time_out__:
         try:
             item = sicsext.runCommand(comm_str)
@@ -146,7 +164,7 @@ def run_sics_command(comm, dtype = str):
         except:
             __count__ += 0.2
             time.sleep(0.2)
-    print 'time out in running ' + comm_str
+    slog('time out in running ' + comm_str)
     return None
     
 try:
@@ -230,7 +248,7 @@ try:
     if not sta is None:
         Sample_Tank_Angle.value = sta
 except:
-    print 'loading configuration page failed'
+    slog('loading configuration page failed')
 
 def ins_config():
     global sv1, sh1, sv2, sh2, vftz, vptz, vrcz, rco, mchs, schs, rco_freq, sv1_precision, \
@@ -508,7 +526,7 @@ def ins_config():
             else:
                 vftz_new = 'none'
             if Second_Order_Filter.value != vftz_new :
-                slog('change Second_Order_Filter failed, current value is ' + vftz_new)
+                slog('change Second_Order_Filter failed, current value is ' + str(vftz_new))
             else :
                 vftz = vftz_new
         vptz_value = get_sics_value('vptz', float)
@@ -523,7 +541,7 @@ def ins_config():
             else:
                 vptz_new = 'none'
             if Polariser.value != vptz_new:
-                slog('change Polariser failed, current value is ' + vptz_new)
+                slog('change Polariser failed, current value is ' + str(vptz_new))
             else :
                 vptz = vptz_new
         vrcz_value = get_sics_value('vrcz', float)
@@ -536,7 +554,7 @@ def ins_config():
                 vrcz_new = False
                 vrcz_status = 'off'
             if Radial_Collimator.value != vrcz_new:
-                slog('change Radial_Collimator failed, current value is ' + vrcz_status)
+                slog('change Radial_Collimator failed, current value is ' + str(vrcz_status))
             else:
                 vrcz = vrcz_new
         sv2_new = get_sics_value('sv2', float)
@@ -567,30 +585,12 @@ def ins_config():
         if not sta is None:
             Sample_Tank_Angle.value = sta
     else:
-        print 'Configuration aborted.'
+        slog('Configuration aborted.')
 
 def set_prof_value(name, value):
     if value == None:
         value = ''
     __UI__.setPreference(name, value)
-    
-def logBook(text):
-    global __buffer_logger__, __history_logger__
-    try:
-        tsmp = strftime("[%Y-%m-%d %H:%M:%S]", localtime())
-        __buffer_logger__.write(tsmp + ' ' + text + '\n')
-        __buffer_logger__.flush()
-        for item in HISTORY_KEY_WORDS:
-            if text.startswith(item):
-                __history_logger__.write(tsmp + ' ' + text + '\n')
-                __history_logger__.flush()
-    except:
-        traceback.print_exc(file=sys.stdout)
-        print 'failed to log'
-    
-def slog(text):
-    logln(text + '\n')
-    logBook(text)
     
 # Use below example to create a new Plot
 # Plot4 = Plot(title = 'new plot')
