@@ -42,10 +42,24 @@ __buffer_logger__ = open(__buffer_log_file__, 'a')
 __history_logger__ = open(__history_log_file__, 'a')
 
 print 'Waiting for SICS connection'
-while sics.getSicsController() == None:
+while sics.getSicsController() == None or sics.getSicsController().getServerStatus() == 'UNKNOWN':
     time.sleep(1)
 
-time.sleep(3)
+print 'connected ...'
+time.sleep(5)
+
+wait_count = 0
+while wait_count < 10 :
+    try:
+        sics.getSicsController().findComponentController('/experiment/file_status').getValue().getStringData()
+        break
+    except:
+        time.sleep(1)
+        wait_count += 1
+
+if wait_count >= 10:
+    raise Exception, 'Timeout with initialising. Please click on Reload button to try again.'
+
 
 __scan_status_node__ = sics.getSicsController().findComponentController('/commands/scan/runscan/feedback/status')
 __scan_variable_node__ = sics.getSicsController().findComponentController('/commands/scan/runscan/scan_variable')
@@ -68,6 +82,7 @@ class __Display_Runnable__(Runnable):
 
 __file_to_add__ = None
 __newfile_enabled__ = True
+
 def add_dataset():
     global __newfile_enabled__
     if not __newfile_enabled__ :
