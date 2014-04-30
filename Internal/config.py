@@ -1,10 +1,14 @@
 from org.gumtree.gumnix.sics.control.controllers import ComponentData
-
+from org.gumtree.gumnix.sics.control.events import DynamicControllerListenerAdapter
+from gumpy.commons import logger
 # Script control setup area
 # script info
 __script__.title = 'Instrument Control'
 __script__.version = '1.0'
 
+def slog(text):
+    logger.log(text)
+    
 __listener_list__ = []
 class __ValueListener__(DynamicControllerListenerAdapter):
     
@@ -129,6 +133,8 @@ def par_changed(par):
     else:
         slog('can\'t find ' + path)
     
+g_exp_info = Group('Experiment Information')
+
 user_name = Par('string', '', command = 'par_changed(user_name)')
 init_par(user_name, 'User Name', 'user', '/user/name')
 
@@ -137,6 +143,29 @@ init_par(e_title, 'Experiment Title', 'title', '/experiment/title')
 
 sample_name = Par('string', '', command = 'par_changed(sample_name)')
 init_par(sample_name, 'Sample Name', 'samplename', '/sample/name')
+
+g_exp_info.add(user_name, e_title, sample_name)
+
+g_fermi = Group('Fermi Chopper')
+
+Fermi_Chopper_1_Frequency = Par('float', 0, command = 'par_changed(Fermi_Chopper_1_Frequency)')
+init_par(Fermi_Chopper_1_Frequency, 'Chopper 1 Frequency', 'run mchs', 'mchs')
+
+Fermi_Chopper_1_Frame_Overlap_Ratio = Par('float', 0, command = 'par_changed(Fermi_Chopper_1_Frame_Overlap_Ratio)')
+init_par(Fermi_Chopper_1_Frame_Overlap_Ratio, 'Chopper 1 Frame Overlap Ratio', '', '')
+Fermi_Chopper_1_Frame_Overlap_Ratio.enabled = False
+
+Fermi_Chopper_2_Frequency = Par('float', 0, command = 'par_changed(Fermi_Chopper_2_Frequency)')
+init_par(Fermi_Chopper_2_Frequency, 'Chopper 2 Frequency', 'run schs', 'schs')
+
+Fermi_Chopper_2_Time_Focussing = Par('bool', False)
+init_par(Fermi_Chopper_2_Time_Focussing, 'Chopper 2 Time Focussing', '', '')
+Fermi_Chopper_2_Time_Focussing.enabled = False
+
+g_fermi.add(Fermi_Chopper_1_Frequency, Fermi_Chopper_1_Frame_Overlap_Ratio, \
+            Fermi_Chopper_2_Frequency, Fermi_Chopper_2_Time_Focussing)
+
+g_beam = Group('Beam Setup')
 
 Wavelength = Par('string', '')
 init_par(Wavelength, 'Wavelength', 'drive vwi', '/instrument/crystal/wavelength')
@@ -155,13 +184,6 @@ init_par(Slit_1_Vertical, 'Slit 1 Vertical', 'run sv1', 'sv1')
 Slit_1_Horizontal = Par('float', 0, command = 'par_changed(Slit_1_Horizontal)')
 init_par(Slit_1_Horizontal, 'Slit 1 Horizontal', 'run sh1', 'sh1')
 
-Fermi_Chopper_1_Frequency = Par('float', 0, command = 'par_changed(Fermi_Chopper_1_Frequency)')
-init_par(Fermi_Chopper_1_Frequency, 'Chopper 1 Frequency', 'run mchs', 'mchs')
-
-Fermi_Chopper_1_Frame_Overlap_Ratio = Par('float', 0, command = 'par_changed(Fermi_Chopper_1_Frame_Overlap_Ratio)')
-init_par(Fermi_Chopper_1_Frame_Overlap_Ratio, 'Chopper 1 Frame Overlap Ratio', '', '')
-Fermi_Chopper_1_Frame_Overlap_Ratio.enabled = False
-
 Second_Order_Filter = Par('string', '', command = 'par_changed(Second_Order_Filter)')
 init_par(Second_Order_Filter, 'Second Order Filter', 'run vftz', 'vftz', \
          options = ['graphite','none','Be'], option_values = [1, 2, 3])
@@ -169,13 +191,6 @@ init_par(Second_Order_Filter, 'Second Order Filter', 'run vftz', 'vftz', \
 Polariser = Par('string', '', command = 'par_changed(Polariser)')
 init_par(Polariser, 'Polariser', 'run vptz', 'vptz', \
          options = ['collimator','none','polariser'], option_values = [1, 2, 3])
-
-Fermi_Chopper_2_Frequency = Par('float', 0, command = 'par_changed(Fermi_Chopper_2_Frequency)')
-init_par(Fermi_Chopper_2_Frequency, 'Chopper 2 Frequency', 'run schs', 'schs')
-
-Fermi_Chopper_2_Time_Focussing = Par('bool', False)
-init_par(Fermi_Chopper_2_Time_Focussing, 'Chopper 2 Time Focussing', '', '')
-Fermi_Chopper_2_Time_Focussing.enabled = False
 
 Slit_2_Vertical = Par('float', 0, command = 'par_changed(Slit_2_Vertical)')
 init_par(Slit_2_Vertical, 'Slit 2 Vertical', 'run sv2', 'sv2')
@@ -191,9 +206,18 @@ Radial_Collimator_Frequency = Par('float', 0)
 init_par(Radial_Collimator_Frequency, 'Radial Collimator Frequency', '', '')
 Radial_Collimator_Frequency.enabled = False
 
+g_beam.add(Wavelength, Moncohromator_Vertical_Focussing, Monochromator_Time_Focussing,\
+           Slit_1_Vertical, Slit_1_Horizontal, Slit_2_Vertical, Slit_2_Horizontal, \
+           Radial_Collimator, Radial_Collimator_Frequency, Second_Order_Filter, Polariser)
+
+g_sample = Group('Sample Tank')
+
 Sample_Tank_Angle = Par('float', 0)
 init_par(Sample_Tank_Angle, 'Sample Tank Angle', '', '')
 Sample_Tank_Angle.enabled = False
+
+g_sample.add(Sample_Tank_Angle)
+
 # Use below example to create a button
 #act1 = Act('act1_changed()', 'click me') 
 #def act1_changed():

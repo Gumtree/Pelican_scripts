@@ -1,4 +1,5 @@
 from org.gumtree.gumnix.sics.control.controllers import ComponentData
+from org.gumtree.gumnix.sics.control.events import DynamicControllerListenerAdapter
 
 # Script control setup area
 # script info
