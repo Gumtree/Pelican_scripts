@@ -11,23 +11,15 @@ preset = Par('float', 0)
 # Use below example to create a button
 act1 = Act('act1_changed()', 'Start') 
 def act1_changed():
-    sics.execute('newfile histogram_xyt')
     sics.execute('histmem mode ' + str(mode.value))
     sics.execute('histmem preset ' + str(preset.value))
     sics.execute('histmem start')
-    slog('histmem started')
-
-act2 = Act('act2_changed()', 'Save Intermediate Result') 
-def act2_changed():
-    sics.execute('save')
-    slog('intermediate result saved')
     
-act3 = Act('act3_changed()', 'Stop and Save') 
-def act3_changed():
+act2 = Act('act2_changed()', 'Stop and Save') 
+def act2_changed():
+    sics.execute('newfile histogram_xyt')
     sics.execute('save')
     sics.execute('histmem stop')
-    slog('save result')
-    slog('histmem stopped')
     
 # Use below example to create a new Plot
 # Plot4 = Plot(title = 'new plot')
@@ -47,6 +39,7 @@ def __run_script__(fns):
             # load dataset with each file name
             ds = df[fn]
             print ds.shape
+    print arg1_name.value
     
 def __dispose__():
     global Plot1
