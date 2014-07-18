@@ -45,7 +45,7 @@ print 'Waiting for SICS connection'
 while sics.getSicsController() == None:
     time.sleep(1)
 
-time.sleep(3)
+time.sleep(8)
 
 __scan_status_node__ = sics.getSicsController().findComponentController('/commands/scan/runscan/feedback/status')
 __scan_variable_node__ = sics.getSicsController().findComponentController('/commands/scan/runscan/scan_variable')

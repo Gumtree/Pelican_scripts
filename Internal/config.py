@@ -3,8 +3,8 @@ from org.gumtree.gumnix.sics.control.events import DynamicControllerListenerAdap
 from gumpy.commons import logger
 # Script control setup area
 # script info
-__script__.title = 'Instrument Control'
-__script__.version = '1.0'
+__script__.title = 'Experiment Setup'
+__script__.version = '2.0'
 
 def slog(text):
     logger.log(text)
@@ -133,6 +133,11 @@ def par_changed(par):
     else:
         slog('can\'t find ' + path)
     
+while sics.getSicsController() == None:
+    time.sleep(1)
+
+time.sleep(3)
+
 g_exp_info = Group('Experiment Information')
 
 user_name = Par('string', '', command = 'par_changed(user_name)')
@@ -249,3 +254,4 @@ def __dispose__():
     for listener in __listener_list__:
         listener.controller.removeComponentListener(listener)
     __listener_list__ = None
+
