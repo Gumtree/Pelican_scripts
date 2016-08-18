@@ -138,6 +138,14 @@ def load_experiment_data():
     basename = sicsext.getBaseFilename()
     fullname = str(System.getProperty('sics.data.path') + '/' + basename)
     df.datasets.clear()
+    global __DATASOURCE__
+    try:
+        sysname = fullname.replace('/', '\\')
+        if __DATASOURCE__.getDataset(fullname) == None \
+            and __DATASOURCE__.getDataset(sysname) == None:
+            __DATASOURCE__.addDataset(fullname, False)
+    except:
+        log('error in adding dataset: ' + fullname)
     ds = df[fullname]
     dname = str(data_name.value)
     data = SimpleData(ds[dname])

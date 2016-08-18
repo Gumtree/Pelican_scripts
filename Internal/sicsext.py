@@ -22,15 +22,15 @@ def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, comm 
     sicsController = getSicsController()
     scanController = sicsController.findComponentController(cpath)
     
-    execute('hset ' + cpath + '/scan_variable ' + str(scan_variable))
-    execute('hset ' + cpath + '/scan_start ' + str(scan_start))
-    execute('hset ' + cpath + '/scan_stop ' + str(scan_stop))
-    execute('hset ' + cpath + '/numpoints ' + str(numpoints))
-    execute('hset ' + cpath + '/mode ' + mode)
-    execute('hset ' + cpath + '/preset ' + str(preset))
-    execute('hset ' + cpath + '/datatype ' + datatype)
-    execute('hset ' + cpath + '/savetype ' + savetype)
-    execute('hset ' + cpath + '/force ' + str(force))
+    execute('hset ' + cpath + '/scan_variable ' + str(scan_variable), 'scan')
+    execute('hset ' + cpath + '/scan_start ' + str(scan_start), 'scan')
+    execute('hset ' + cpath + '/scan_stop ' + str(scan_stop), 'scan')
+    execute('hset ' + cpath + '/numpoints ' + str(numpoints), 'scan')
+    execute('hset ' + cpath + '/mode ' + mode, 'scan')
+    execute('hset ' + cpath + '/preset ' + str(preset), 'scan')
+    execute('hset ' + cpath + '/datatype ' + datatype, 'scan')
+    execute('hset ' + cpath + '/savetype ' + savetype, 'scan')
+    execute('hset ' + cpath + '/force ' + str(force), 'scan')
 
     # Monitor status
     while(scanController.getCommandStatus().equals(CommandStatus.BUSY)):
@@ -43,7 +43,7 @@ def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, comm 
     # Run scan
     print 'Scan started'
 #    scanController.asyncExecute()
-    execute('hset ' + cpath + ' start')
+    execute('hset ' + cpath + ' start', 'scan')
     
     # Monitor initial status change
     try:
@@ -115,13 +115,13 @@ def rawscan(type, scan_variable, scan_start, scan_increment, NP, mode, preset, c
     sicsController = getSicsController()
     scanController = sicsController.findComponentController('/commands/scan/' + type)
     
-    execute('hset ' + cpath + '/scan_variable ' + str(scan_variable))
-    execute('hset ' + cpath + '/scan_start ' + str(scan_start))
-    execute('hset ' + cpath + '/scan_increment ' + str(scan_increment))
-    execute('hset ' + cpath + '/NP ' + str(NP))
-    execute('hset ' + cpath + '/mode ' + mode)
-    execute('hset ' + cpath + '/preset ' + str(preset))
-    execute('hset ' + cpath + '/channel ' + str(channel))
+    execute('hset ' + cpath + '/scan_variable ' + str(scan_variable), 'scan')
+    execute('hset ' + cpath + '/scan_start ' + str(scan_start), 'scan')
+    execute('hset ' + cpath + '/scan_increment ' + str(scan_increment), 'scan')
+    execute('hset ' + cpath + '/NP ' + str(NP), 'scan')
+    execute('hset ' + cpath + '/mode ' + mode, 'scan')
+    execute('hset ' + cpath + '/preset ' + str(preset), 'scan')
+    execute('hset ' + cpath + '/channel ' + str(channel), 'scan')
 
     # Monitor status
     while(scanController.getCommandStatus().equals(CommandStatus.BUSY)):
@@ -134,7 +134,7 @@ def rawscan(type, scan_variable, scan_start, scan_increment, NP, mode, preset, c
     # Run scan
     print 'Scan started'
 #    scanController.asyncExecute()
-    execute('hset ' + cpath + ' start')
+    execute('hset ' + cpath + ' start', 'scan')
     
     # Monitor initial status change
     try:
