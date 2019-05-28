@@ -53,6 +53,7 @@ my = $entry/instrument/crystal/my
 pom = $entry/instrument/crystal/pom 
 ptz = $entry/instrument/crystal/ptz 
 wavelength = $entry/instrument/crystal/wavelength 
+mscor = $entry/sample/mscor
 
 RCollZ = $entry/instrument/crystal/RCollZ 
 rco = $entry/instrument/crystal/rco 
@@ -75,6 +76,8 @@ x_pixel_angular = $entry/instrument/detector/x_pixel_angular
 x_pixel_offset = $entry/instrument/detector/x_pixel_offset
 y_bin = $entry/instrument/detector/y_bin
 y_pixel_offset = $entry/instrument/detector/y_pixel_offset
+
+polrot = $entry/instrument/slits/polrot
 
 mchs = $entry/instrument/fermi_chopper/mchs
 schp = $entry/instrument/fermi_chopper/schp
