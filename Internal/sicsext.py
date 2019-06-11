@@ -15,7 +15,7 @@ def runhmscan(scan_variable, scan_start, scan_increment, NP, mode, preset, chann
     rawscan('hmscan', scan_variable, scan_start, scan_increment, NP, mode, preset, channel, comm)
 
 def runscan(scan_variable, scan_start, scan_stop, numpoints, mode, preset, comm = None, force = False, \
-            datatype = 'HISTOGRAM_XYT', savetype = 'save'):
+            datatype = 'HISTOGRAM_XY', savetype = 'save'):
     # Initialisation
     clearInterrupt()
     cpath = '/commands/scan/runscan'
