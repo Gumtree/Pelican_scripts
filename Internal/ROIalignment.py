@@ -10,7 +10,7 @@ from gumpy.vis.event import MouseListener, MaskEventListener, AWTMouseListener
 from org.gumtree.vis.mask import RectangleMask
 # Script control setup area
 # script info
-__script__.title = 'ROI Alignment'
+__script__.title = 'ROI Scan'
 __script__.version = '1.0'
 #pact = Act('previous_step()', '<- Previous Step')
     
