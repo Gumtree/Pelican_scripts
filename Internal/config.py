@@ -1,6 +1,7 @@
 from org.gumtree.gumnix.sics.control.controllers import ComponentData
 from org.gumtree.gumnix.sics.control.events import DynamicControllerListenerAdapter
 from gumpy.commons import logger
+from Internal.sicsext import *
 # Script control setup area
 # script info
 __script__.title = 'Experiment Setup'
